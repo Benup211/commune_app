@@ -15,10 +15,14 @@ import {
 } from "@/components/ui/dropdown-menu"
 import useWalletStore from "@/store/wallet-state"
 import { WalletType } from "@/types/wallet-types"
+import { usePathname } from 'next/navigation'
 export function WalletConnect() {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const {walletConnected,setWalletConnected,setWallet,wallet } =useWalletStore();
   const [copied, setCopied] = useState(false)
+  const pathname = usePathname()
+
+  const rootPath = pathname === "/" ? true : false
 
   const handleOpenDialog = () => {
     setIsDialogOpen(true)
@@ -88,7 +92,7 @@ export function WalletConnect() {
         onClick={handleOpenDialog}
       >
         <Wallet className="mr-2 h-4 w-4" />
-        <span className="hidden sm:inline">Connect Wallet</span>
+        {rootPath && <span className="hidden sm:inline">Connect Wallet</span>}
       </Button>
       <WalletConnectDialog isOpen={isDialogOpen} onClose={handleCloseDialog} />
     </>

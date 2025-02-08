@@ -139,7 +139,7 @@ export function WalletConnectDialog({ isOpen, onClose }: WalletConnectDialogProp
         </div>
         <div className="px-6 py-4 bg-white/5 border-t border-white/10">
           <p className="text-xs text-gray-400 text-center">
-            By connecting a wallet, you agree to Hub Terms of Service and Privacy Policy.
+            By connecting a wallet, you agree to hub Terms of Service and Privacy Policy.
           </p>
         </div>
       </DialogContent>
