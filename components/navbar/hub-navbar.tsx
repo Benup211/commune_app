@@ -5,29 +5,13 @@ import { SearchInput } from "@/components/search/search-input"
 import { Plus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import {AddNewModuleDialog} from "@/components/module/add-module-dialog"
-import { useState } from "react"
+import { useRouter } from "next/navigation"
 interface NavbarProps {
   onSearch: (value: string) => void
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  onAddNewModule: (module: any) => void
 }
 
-export function HubNavbar({ onSearch,onAddNewModule }: NavbarProps) {
-  const [isAddNewModuleDialogOpen, setIsAddNewModuleDialogOpen] = useState(false)
-
-  const handleOpenAddNewModuletDialog = () => {
-    setIsAddNewModuleDialogOpen(true)
-  }
-
-  const handleCloseAddNewModuleDialog = () => {
-    setIsAddNewModuleDialogOpen(false)
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const handleCreateNewModule = (newModule: any) => {
-    onAddNewModule(newModule);
-  }
+export function HubNavbar({ onSearch }: NavbarProps) {
+  const router=useRouter();
   
   return (
     <nav className="sticky top-0 z-50 border-b border-white/10 bg-white/5 backdrop-blur-xl backdrop-filter">
@@ -49,7 +33,7 @@ export function HubNavbar({ onSearch,onAddNewModule }: NavbarProps) {
                   <Button
                     variant="outline"
                     size="icon"
-                    onClick={handleOpenAddNewModuletDialog}
+                    onClick={()=>{router.push("/module/create")}}
                     className="border-white/10 bg-white/10 hover:bg-white/20 text-gray-300 hover:text-white transition-colors duration-200"
                   >
                     <Plus className="h-4 w-4" />
@@ -65,11 +49,6 @@ export function HubNavbar({ onSearch,onAddNewModule }: NavbarProps) {
           <WalletConnect />
         </div>
       </div>
-      <AddNewModuleDialog
-        isOpen={isAddNewModuleDialogOpen}
-        onClose={handleCloseAddNewModuleDialog}
-        onCreateModule={handleCreateNewModule}
-      />
     </nav>
   )
 }

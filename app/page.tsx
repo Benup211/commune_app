@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { motion } from "framer-motion"
 import { useModuleStore } from "@/store/module-state"
-import { AddNewModuleDialog } from "@/components/module/add-module-dialog"
+import { useRouter } from "next/navigation"
 
 
 const ITEMS_PER_PAGE = 12
@@ -21,7 +21,7 @@ export default function Home() {
   const [currentPage, setCurrentPage] = useState(1)
   const [searchTerm, setSearchTerm] = useState("")
   const [isLoading, setIsLoading] = useState(false)
-  const [isAddNewModuleDialogOpen, setIsAddNewModuleDialogOpen] = useState(false)
+  const router=useRouter()
 
   const { fetchModules, modules, loadingModules } = useModuleStore();
 
@@ -62,14 +62,9 @@ export default function Home() {
     setCurrentPage(1)
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const handleAddNewModule = (newModule: any) => {
-    console.log("New module", newModule)
-  }
-
   return (
     <div className="min-h-screen flex flex-col bg-[#03040B] bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(120,119,198,0.3),rgba(255,255,255,0))]">
-      <HubNavbar onSearch={handleSearch} onAddNewModule={() => { setIsAddNewModuleDialogOpen(true) }} />
+      <HubNavbar onSearch={handleSearch} />
 
       <main className="flex-grow container mx-auto px-4 py-8">
         <div className="md:hidden mb-6 flex items-center space-x-2">
@@ -82,7 +77,7 @@ export default function Home() {
                 <Button
                   variant="outline"
                   size="icon"
-                  onClick={() => setIsAddNewModuleDialogOpen(true)}
+                  onClick={()=>{router.push("/module/create")}}
                   className="border-white/10 bg-white/10 hover:bg-white/20 text-gray-300 hover:text-white transition-colors duration-200"
                 >
                   <Plus className="h-4 w-4" />
@@ -99,7 +94,7 @@ export default function Home() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5 }}
-          className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+          className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
         >
           {isLoading
             ? Array.from({ length: ITEMS_PER_PAGE }).map((_, index) => <ModuleCardSkeleton key={index} />)
@@ -126,7 +121,6 @@ export default function Home() {
       </main>
 
       <Footer />
-      <AddNewModuleDialog isOpen={isAddNewModuleDialogOpen} onClose={() => { setIsAddNewModuleDialogOpen(false) }} onCreateModule={handleAddNewModule} />
     </div>
   )
 }
