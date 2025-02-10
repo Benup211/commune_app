@@ -362,7 +362,7 @@ export default function CreateModulePage() {
                                 <BreadcrumbItem>
                                     <BreadcrumbLink
                                         onClick={() => router.push("/")}
-                                        className="cursor-pointer text-sm text-gray-400 hover:text-white my-2 flex items-center gap-1 ml-2 my-2"
+                                        className="cursor-pointer text-sm text-gray-400 hover:text-white my-2 flex items-center gap-1 ml-2"
                                     >
                                         <ChevronLeft className="h-4 w-4" /> Back to Modules
                                     </BreadcrumbLink>
