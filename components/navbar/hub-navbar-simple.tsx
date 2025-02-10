@@ -1,3 +1,4 @@
+"use client"
 import { WalletConnect } from "@/components/wallet/wallet-connect"
 
 export function SimpleHubNavbar() {
@@ -8,7 +9,7 @@ export function SimpleHubNavbar() {
         <div className="flex h-20 items-center justify-between">
           <div className="flex-shrink-0">
             <span className="text-2xl font-bold text-white">
-              <span className="text-blue-400">hub</span>
+              <span className="text-blue-400">dhub</span>
             </span>
           </div>
           <WalletConnect />

@@ -8,24 +8,53 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Terminal } from "lucide-react"
 
 
-//props for the function
-type FunctionParams = {
+interface InputField {
+  value: string
+  type: string
+}
+
+interface Schema {
   [key: string]: {
-    params: string[]
+    input: {
+      [key: string]: InputField
+    }
+    output: {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      value: any
+      type: string
+    }
   }
 }
 
-const AVAILABLE_FUNCTIONS: FunctionParams = {
-  ask: {
-    params: ["self", "text", "kwargs"],
-  },
-  addkey: {
-    params: ["self", "module", "key"],
-  },
+interface ApiTabProps {
+  schema?: Schema
 }
 
-export function ApiTab() {
-  const [selectedFunction, setSelectedFunction] = useState<string>("ask")
+const schemaDefault: Schema = {
+  "defaultFunction": {
+    "input": {
+      "self": {
+        "value": "_empty",
+        "type": "_empty"
+      },
+      "module": {
+        "value": "_empty",
+        "type": "_empty"
+      },
+      "key": {
+        "value": "_empty",
+        "type": "_empty"
+      }
+    },
+    "output": {
+      "value": null,
+      "type": "None"
+    }
+  }
+}
+
+export function ApiTab({ schema=schemaDefault }: ApiTabProps) {
+  const [selectedFunction, setSelectedFunction] = useState<string>(Object.keys(schema)[0])
   const [params, setParams] = useState<{ [key: string]: string }>({})
   const [executionResult, setExecutionResult] = useState<string | null>(null)
   const [isExecuting, setIsExecuting] = useState(false)
@@ -56,7 +85,7 @@ export function ApiTab() {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent className="bg-[#0D1117] border-[#30363D]">
-                {Object.keys(AVAILABLE_FUNCTIONS).map((func) => (
+                {Object.keys(schema).map((func) => (
                   <SelectItem key={func} value={func} className="text-gray-300 hover:bg-[#30363D]">
                     {func}
                   </SelectItem>
@@ -67,14 +96,14 @@ export function ApiTab() {
 
           <div className="space-y-4">
             <h3 className="text-sm text-gray-400">Parameters</h3>
-            {AVAILABLE_FUNCTIONS[selectedFunction]?.params.map((param) => (
+            {Object.entries(schema[selectedFunction].input).map(([param, field]) => (
               <div key={param} className="space-y-2">
                 <label className="text-sm text-gray-400">
-                  {param} <span className="text-gray-500">(_empty)</span>
+                  {param} <span className="text-gray-500">({field.type})</span>
                 </label>
                 <Input
                   placeholder={`Enter ${param}`}
-                  value={params[param] || ""}
+                  value={params[param] || field.value}
                   onChange={(e) => handleParamChange(param, e.target.value)}
                   className="bg-[#0D1117] border-[#30363D] text-gray-300 placeholder:text-gray-600"
                 />
@@ -142,4 +171,3 @@ export function ApiTab() {
     </div>
   )
 }
-

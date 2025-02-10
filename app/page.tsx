@@ -94,7 +94,7 @@ export default function Home() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5 }}
-          className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
+          className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4"
         >
           {isLoading
             ? Array.from({ length: ITEMS_PER_PAGE }).map((_, index) => <ModuleCardSkeleton key={index} />)
@@ -103,9 +103,8 @@ export default function Home() {
                 key={index}
                 name={module.name}
                 mkey={module.key}
-                hash={module.hash}
                 timestamp={module.time.toString()}
-                description={module?.description || "No description"}
+                description={module?.description || "This is a description of a module.The module take input from the user and give the output."}
               />
             ))}
         </motion.div>

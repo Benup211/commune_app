@@ -1,19 +1,19 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useRef } from "react"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
-import { Check, Copy, Code, ExternalLink,Network, Key, Hash, Clock } from "lucide-react"
+import { Check, Copy, Code, ExternalLink, Key, Clock } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { ScrollArea } from "@/components/ui/scroll-area"
 
 interface ModuleCardProps {
   name: string
   mkey: string
-  hash: string
   timestamp: string
   imageUrl?: string
   network?: string
@@ -21,26 +21,29 @@ interface ModuleCardProps {
   description: string
 }
 
-export function ModuleCard({ name, mkey, hash, timestamp, description ,imageUrl,network="commune",tags=["LLM","Text Conversion"]}: ModuleCardProps) {
+export function ModuleCard({ name, mkey, timestamp, description, imageUrl, network = "commune", tags = ["LLM", "Text Conversion","LLM", "Text Conversion","LLM", "Text Conversion"] }: ModuleCardProps) {
   const router = useRouter()
-  const [copied, setCopied] = useState({ mkey: false, hash: false })
-  const [isHovered, setIsHovered] = useState(false)
+  const [copied, setCopied] = useState(false)
+  const [isHovered] = useState(false)
   const [imageError, setImageError] = useState(false)
+  const cardRef = useRef<HTMLDivElement>(null)
 
-  const copyToClipboard = async (text: string, type: "mkey" | "hash") => {
+  const copyToClipboard = async (text: string) => {
     try {
       await navigator.clipboard.writeText(text)
-      setCopied((prev) => ({ ...prev, [type]: true }))
+      setCopied(true)
       setTimeout(() => {
-        setCopied((prev) => ({ ...prev, [type]: false }))
+        setCopied(false)
       }, 2000)
     } catch (err) {
       console.error("Failed to copy text: ", err)
     }
   }
 
-  const navigateToModule = () => {
-    router.push(`/module/${encodeURIComponent(name.toLowerCase())}`)
+  const navigateToModule = (e: React.MouseEvent) => {
+    if (cardRef.current && !cardRef.current.contains(e.target as Node)) {
+      router.push(`/module/${encodeURIComponent(name.toLowerCase())}`)
+    }
   }
 
   const handleCodeClick = (e: React.MouseEvent) => {
@@ -62,53 +65,53 @@ export function ModuleCard({ name, mkey, hash, timestamp, description ,imageUrl,
     setImageError(true)
   }
 
+  const truncatedDescription = description.length > 80 ? `${description.slice(0, 80)}...` : description
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
-      onHoverStart={() => setIsHovered(true)}
-      onHoverEnd={() => setIsHovered(false)}
     >
       <Card
         className="group relative overflow-hidden border-white/10 bg-white/5 backdrop-blur-md backdrop-filter transition-all duration-300 hover:bg-white/10 cursor-pointer"
         onClick={navigateToModule}
       >
-        <CardContent className="p-5 flex flex-col h-[360px]">
-          <div className="mb-4 flex items-center space-x-3">
-            <div className="relative h-10 w-10 flex-shrink-0 overflow-hidden rounded-lg border border-white/10">
+        <CardContent className="p-5 flex flex-col">
+        <div className="flex items-center space-x-3 mb-3">
+            <div className="relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-lg border border-white/10">
               <Image
                 src={
                   !imageError
-                    ? imageUrl || "/sample.png?height=40&width=40"
-                    : "/placeholder.svg?height=40&width=40"
+                    ? imageUrl || "/sample.png"
+                    : "/placeholder.svg?height=48&width=48"
                 }
                 alt={name}
-                width={40}
-                height={40}
+                width={64}
+                height={64}
                 className="object-cover"
                 onError={handleImageError}
               />
             </div>
-            <div className="min-w-0 flex-1">
-              <Badge variant="outline" className="mb-1 bg-blue-500/10 text-blue-400 border-blue-500/20 font-medium">
-                {name}
+            <div className="flex-1 min-w-0">
+              <h3 className="text-lg font-semibold text-white truncate">{name}</h3>
+              <Badge variant="outline" className="mt-1 bg-blue-500/10 text-blue-400 border-blue-500/20 font-medium">
+                {network}
               </Badge>
             </div>
           </div>
 
-          <div className="mb-4 rounded-md border border-white/10 bg-white/5 p-4 h-[80px] overflow-hidden">
-            <div className="flex items-start font-mono text-sm">
-              <span className="mr-2 text-blue-400 flex-shrink-0">$</span>
-              <span className="text-gray-300 line-clamp-3">{description}</span>
-            </div>
+          {/* Description Section - Fixed height */}
+          <div className="mb-3 h-[40px]">
+            <p className="text-sm text-gray-300 line-clamp-2">{truncatedDescription}</p>
           </div>
 
-          <div className="space-y-2 font-mono text-sm flex-1">
+          {/* Info Section */}
+          <div className="font-mono text-sm space-y-1 mb-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
-                <Key className="h-4 w-4 text-gray-400" />
-                <span className="text-gray-400">Key:</span>
+                <Key className="h-4 w-4 text-blue-400" />
+                <span className="text-blue-400">Key:</span>
                 <span className="text-blue-400 truncate max-w-[150px]">{mkey}</span>
               </div>
               <TooltipProvider>
@@ -119,12 +122,12 @@ export function ModuleCard({ name, mkey, hash, timestamp, description ,imageUrl,
                       size="icon"
                       onClick={(e) => {
                         e.stopPropagation()
-                        copyToClipboard(mkey, "mkey")
+                        copyToClipboard(mkey)
                       }}
                       className="h-8 w-8 rounded-md hover:bg-[#30363D] transition-all duration-200"
                     >
                       <AnimatePresence>
-                        {copied.mkey ? (
+                        {copied ? (
                           <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
                             <Check className="h-4 w-4 text-green-400" />
                           </motion.span>
@@ -135,50 +138,10 @@ export function ModuleCard({ name, mkey, hash, timestamp, description ,imageUrl,
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent>
-                    <p>Copy key</p>
+                    <p>Copy module ID</p>
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
-            </div>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2">
-                <Hash className="h-4 w-4 text-gray-400" />
-                <span className="text-gray-400">Hash:</span>
-                <span className="text-blue-400 truncate max-w-[150px]">{hash}</span>
-              </div>
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        copyToClipboard(hash, "hash")
-                      }}
-                      className="h-8 w-8 rounded-md hover:bg-[#30363D] transition-all duration-200"
-                    >
-                      <AnimatePresence>
-                        {copied.hash ? (
-                          <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                            <Check className="h-4 w-4 text-green-400" />
-                          </motion.span>
-                        ) : (
-                          <Copy className="h-4 w-4 text-gray-400" />
-                        )}
-                      </AnimatePresence>
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Copy hash</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </div>
-            <div className="flex items-center space-x-2">
-              <Network className="h-4 w-4 text-gray-400" />
-              <span className="text-gray-400">Network:</span>
-              <span className="text-blue-400">{network}</span>
             </div>
             <div className="flex items-center space-x-2">
               <Clock className="h-4 w-4 text-gray-400" />
@@ -187,15 +150,22 @@ export function ModuleCard({ name, mkey, hash, timestamp, description ,imageUrl,
             </div>
           </div>
 
-          {tags.length > 0 && (
-            <div className="mt-4 flex flex-wrap gap-2 h-[40px] overflow-hidden">
-              {tags.map((tag, index) => (
-                <Badge key={index} variant="outline" className="bg-white/5 text-gray-300 border-white/10">
-                  {tag}
-                </Badge>
-              ))}
-            </div>
-          )}
+          {/* Tags Section - Fixed height for two lines of badges */}
+          <div ref={cardRef} className="h-[30px]">
+            <ScrollArea className="h-full w-full">
+              <div className="flex flex-wrap gap-1 pr-4">
+                {tags.map((tag, index) => (
+                  <Badge
+                    key={index}
+                    variant="outline"
+                    className="flex-shrink-0 bg-white/5 text-gray-300 border-white/10"
+                  >
+                    {tag}
+                  </Badge>
+                ))}
+              </div>
+            </ScrollArea>
+          </div>
         </CardContent>
 
         <CardFooter className="grid grid-cols-3 border-t border-white/10 p-0">
@@ -248,4 +218,3 @@ export function ModuleCard({ name, mkey, hash, timestamp, description ,imageUrl,
     </motion.div>
   )
 }
-

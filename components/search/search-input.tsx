@@ -22,7 +22,7 @@ export function SearchInput({ onSearch }: SearchInputProps) {
       <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 transform text-gray-400" />
       <Input
         type="search"
-        placeholder="Search agents..."
+        placeholder="Search modules..."
         value={searchValue}
         onChange={handleSearch}
         className="w-full pl-10 border-white/10 bg-white/10 text-sm text-gray-300 placeholder:text-gray-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors duration-200"

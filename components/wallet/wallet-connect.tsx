@@ -1,7 +1,8 @@
 "use client"
 
 import { useState } from "react"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Avatar } from "@/components/ui/avatar"
+import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Wallet, Copy, LogOut, Check } from "lucide-react"
 import { WalletConnectDialog } from "./wallet-connect-dialog"
@@ -46,13 +47,12 @@ export function WalletConnect() {
       console.error("Failed to copy text: ", err)
     }
   }
-
   if (walletConnected) {
     return (
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Avatar className="h-10 w-10 border border-white/10 bg-white/10 cursor-pointer">
-            <AvatarFallback className="bg-white/10 text-blue-400">{wallet.address.slice(0,2)}</AvatarFallback>
+          <Avatar className=" bg-transparent cursor-pointer h-11 w-11">
+          <Image src={`/${wallet.name?.toLocaleLowerCase()}.svg`} className="p-1.5 object-contain" alt={`${wallet.name} preview`}/>
           </Avatar>
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-56 bg-white/5 border border-white/10 backdrop-blur-xl backdrop-filter text-white">

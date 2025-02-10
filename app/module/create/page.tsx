@@ -29,7 +29,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { SimpleHubNavbar } from "@/components/navbar/hub-navbar-simple"
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList } from "@/components/ui/breadcrumb"
 
-interface NewAgent {
+interface NewModule {
     name: string
     url: string
     codeLocation: string
@@ -41,6 +41,7 @@ interface NewAgent {
 
 interface FormErrors {
     name?: string
+    codelocation?: string
     url?: string
     description?: string
     tags?: string
@@ -52,12 +53,12 @@ const steps = [
     { icon: Tag, label: "Tags" },
 ]
 
-export default function CreateAgentPage() {
+export default function CreateModulePage() {
     const router = useRouter()
     const [step, setStep] = useState(1)
     const [name, setName] = useState("")
     const [url, setUrl] = useState("")
-    const [codeLocation, setCodeLocation] = useState("")
+    const [codeLocation, setCodeLocation] = useState("https://github.com/")
     const [network, setNetwork] = useState("commune")
     const [description, setDescription] = useState("")
     const [tags, setTags] = useState<string[]>([])
@@ -68,7 +69,7 @@ export default function CreateAgentPage() {
     const fileInputRef = useRef<HTMLInputElement>(null)
 
     const handleAddTag = (e: React.KeyboardEvent<HTMLInputElement>) => {
-        if (e.key === "Enter" && currentTag.trim() !== "" && tags.length < 3) {
+        if (e.key === "Enter" && currentTag.trim() !== "") {
             e.preventDefault()
             setTags([...tags, currentTag.trim()])
             setCurrentTag("")
@@ -96,10 +97,11 @@ export default function CreateAgentPage() {
         switch (currentStep) {
             case 1:
                 if (!name.trim()) newErrors.name = "Name is required"
-                if (!url.trim()) newErrors.url = "URL is required"
+                if (!codeLocation.trim()) newErrors.codelocation = "code location is required"
                 break
             case 2:
                 if (!description.trim()) newErrors.description = "Description is required"
+                if (!url.trim()) newErrors.url = "URL is required"
                 break
             case 3:
                 if (tags.length === 0) newErrors.tags = "At least one tag is required"
@@ -122,7 +124,7 @@ export default function CreateAgentPage() {
     const handleCreate = (e: React.FormEvent) => {
         e.preventDefault()
         if (validateStep(step)) {
-            const newAgent: NewAgent = {
+            const newModule: NewModule = {
                 name,
                 url,
                 codeLocation,
@@ -131,7 +133,7 @@ export default function CreateAgentPage() {
                 tags,
                 image,
             }
-            console.log("New agent created:", newAgent)
+            console.log("New module created:", newModule)
             // Here you would typically send this data to your backend
             // For now, we'll just redirect to the home page
             router.push("/")
@@ -146,7 +148,7 @@ export default function CreateAgentPage() {
                         <div className="space-y-4">
                             <div className="space-y-2">
                                 <Label htmlFor="image" className="text-sm font-medium text-gray-200">
-                                    Agent Image
+                                    Module Image:
                                 </Label>
                                 <div className="flex items-center space-x-4">
                                     <label
@@ -157,7 +159,7 @@ export default function CreateAgentPage() {
                                             <div className="relative w-full h-full">
                                                 <Image
                                                     src={imagePreview || "/placeholder.svg"}
-                                                    alt="Agent preview"
+                                                    alt="Module Image preview"
                                                     layout="fill"
                                                     objectFit="cover"
                                                     className="rounded-lg"
@@ -205,7 +207,7 @@ export default function CreateAgentPage() {
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="name" className="text-sm font-medium text-gray-200">
-                                    Name
+                                    Name:
                                 </Label>
                                 <div className="relative">
                                     <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
@@ -214,15 +216,39 @@ export default function CreateAgentPage() {
                                         value={name}
                                         onChange={(e) => setName(e.target.value)}
                                         className="pl-10 bg-white/5 border-white/10 text-white placeholder-gray-400"
-                                        placeholder="Enter agent name"
+                                        placeholder="Enter module name"
                                         required
                                     />
                                 </div>
                                 {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
                             </div>
                             <div className="space-y-2">
+                                <Label htmlFor="codeLocation" className="text-sm font-medium text-gray-200">
+                                    Code Location:
+                                </Label>
+                                <div className="relative">
+                                    <Code className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+                                    <Input
+                                        id="codeLocation"
+                                        value={codeLocation}
+                                        defaultValue={"https://github.com/"}
+                                        onChange={(e) => setCodeLocation(e.target.value)}
+                                        className="pl-10 bg-white/5 border-white/10 text-white placeholder-gray-400"
+                                        placeholder="https://github.com/username/repo"
+                                    />
+                                </div>
+                                {errors.codelocation && <p className="text-red-500 text-xs mt-1">{errors.codelocation}</p>}
+                            </div>
+                        </div>
+                    </>
+                )
+            case 2:
+                return (
+                    <>
+                        <div className="space-y-4">
+                            <div className="space-y-2">
                                 <Label htmlFor="url" className="text-sm font-medium text-gray-200">
-                                    URL
+                                    URL:
                                 </Label>
                                 <div className="relative">
                                     <Link className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
@@ -237,31 +263,9 @@ export default function CreateAgentPage() {
                                 </div>
                                 {errors.url && <p className="text-red-500 text-xs mt-1">{errors.url}</p>}
                             </div>
-                        </div>
-                    </>
-                )
-            case 2:
-                return (
-                    <>
-                        <div className="space-y-4">
-                            <div className="space-y-2">
-                                <Label htmlFor="codeLocation" className="text-sm font-medium text-gray-200">
-                                    Code Location
-                                </Label>
-                                <div className="relative">
-                                    <Code className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
-                                    <Input
-                                        id="codeLocation"
-                                        value={codeLocation}
-                                        onChange={(e) => setCodeLocation(e.target.value)}
-                                        className="pl-10 bg-white/5 border-white/10 text-white placeholder-gray-400"
-                                        placeholder="https://github.com/username/repo"
-                                    />
-                                </div>
-                            </div>
                             <div className="space-y-2">
                                 <Label htmlFor="network" className="text-sm font-medium text-gray-200">
-                                    Network
+                                    Network:
                                 </Label>
                                 <div className="relative">
                                     <Network className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
@@ -276,7 +280,7 @@ export default function CreateAgentPage() {
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="description" className="text-sm font-medium text-gray-200">
-                                    Description
+                                    Description:
                                 </Label>
                                 <div className="relative">
                                     <FileText className="absolute left-3 top-3 text-gray-400" size={18} />
@@ -285,7 +289,7 @@ export default function CreateAgentPage() {
                                         value={description}
                                         onChange={(e) => setDescription(e.target.value)}
                                         className="pl-10 bg-white/5 border-white/10 text-white placeholder-gray-400"
-                                        placeholder="Describe your agent's capabilities and purpose"
+                                        placeholder="Describe your module's capabilities and purpose"
                                         required
                                     />
                                 </div>
@@ -301,9 +305,8 @@ export default function CreateAgentPage() {
                             <div className="space-y-2">
                                 <div className="flex items-center justify-between">
                                     <Label htmlFor="tags" className="text-sm font-medium text-gray-200">
-                                        Tags
+                                        Tags:
                                     </Label>
-                                    <span className="text-xs text-gray-400">Max 3</span>
                                 </div>
                                 <div className="relative">
                                     <Tag className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
@@ -314,7 +317,6 @@ export default function CreateAgentPage() {
                                         onKeyDown={handleAddTag}
                                         placeholder="Press Enter to add tag"
                                         className="pl-10 bg-white/5 border-white/10 text-white placeholder-gray-400"
-                                        disabled={tags.length >= 3}
                                     />
                                 </div>
                                 <div className="flex flex-wrap gap-2 mt-2">
@@ -368,7 +370,7 @@ export default function CreateAgentPage() {
                             </BreadcrumbList>
                         </Breadcrumb>
                         <CardHeader>
-                            <CardTitle className="text-2xl font-bold">Create New Agent</CardTitle>
+                            <CardTitle className="text-2xl font-bold">Create New Module</CardTitle>
                         </CardHeader>
                         <CardContent>
                             <div className="mb-8">
@@ -425,7 +427,7 @@ export default function CreateAgentPage() {
                                     onClick={handleCreate}
                                     className="bg-blue-500 text-white hover:bg-blue-600 ml-auto"
                                 >
-                                    Create Agent
+                                    Create Module
                                 </Button>
                             )}
                         </CardFooter>

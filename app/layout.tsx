@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Hub",
+  title: "dhub",
   description: "A fully open source protocol for developers to create, connect and share machine learning modules",
 }
 

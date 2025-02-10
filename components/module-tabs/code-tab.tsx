@@ -3,35 +3,20 @@
 import { useState } from "react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { Search, CopyIcon, FileCode, Code, History, Database, Check } from "lucide-react"
+import { Search, CopyIcon,Check } from "lucide-react"
 
-const files = [
-  { name: "agent.py", icon: FileCode },
-  { name: "app.py", icon: Code },
-  { name: "history.py", icon: History },
-  { name: "memory.py", icon: Database },
-]
-
-const fileContents: { [key: string]: string } = {
-  "memory.py": `import commune as c
-
-reducer = c.module('reduce')
-class Memory:
-
-    def __init__(self, size=10000):
-        self.size = size
-        self.data = {}
-        
-    def add(self, key, value):
-        self.data[key] = value
-        
-    def search(self, query=None):
-        keys = list(self.data.keys())
-        reducer.forward(keys, query=query)`,
+interface CodeTabProps {
+  code?: {
+    [key: string]: string
+  }
 }
 
-export function CodeTab() {
-  const [selectedFile, setSelectedFile] = useState("memory.py")
+const defaultCode = {
+  "error.py": 'code file not found',
+}
+
+export function CodeTab({ code = defaultCode }: CodeTabProps) {
+  const [selectedFile, setSelectedFile] = useState(Object.keys(code)[0] || "")
   const [searchQuery, setSearchQuery] = useState("")
   const [copied, setCopied] = useState(false)
 
@@ -45,7 +30,7 @@ export function CodeTab() {
     }
   }
 
-  const filteredFiles = files.filter((file) => file.name.toLowerCase().includes(searchQuery.toLowerCase()))
+  const filteredFiles = Object.keys(code).filter((file) => file.toLowerCase().includes(searchQuery.toLowerCase()))
 
   return (
     <div className="h-full flex flex-col">
@@ -65,17 +50,15 @@ export function CodeTab() {
         {/* File Explorer */}
         <div className="w-full md:w-64 border-b md:border-b-0 md:border-r border-[#30363D] overflow-y-auto p-1 md:p-1">
           {filteredFiles.map((file) => {
-            const Icon = file.icon
             return (
               <button
-                key={file.name}
-                onClick={() => setSelectedFile(file.name)}
+                key={file}
+                onClick={() => setSelectedFile(file)}
                 className={`w-full flex items-center px-4 py-2 text-sm hover:bg-[#30363D] rounded-sm ${
-                  selectedFile === file.name ? "bg-blue-500 text-white" : "text-gray-300"
+                  selectedFile === file ? "bg-blue-500 text-white" : "text-gray-300"
                 }`}
               >
-                <Icon className="mr-2 h-4 w-4" />
-                {file.name}
+                {file}
               </button>
             )
           })}
@@ -87,7 +70,7 @@ export function CodeTab() {
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => handleCopyCode(fileContents[selectedFile] || "")}
+              onClick={() => handleCopyCode(code[selectedFile] || "")}
               className="h-8 w-8 rounded-md border border-[#30363D] bg-[#0D1117] hover:bg-[#30363D] transition-all duration-200"
             >
               {copied ? <Check className="h-4 w-4 text-blue-500" /> : <CopyIcon className="h-4 w-4 text-gray-400" />}
@@ -95,7 +78,7 @@ export function CodeTab() {
           </div>
           <pre className="p-6 text-sm font-mono">
             <code className="text-[#238636]">
-              {fileContents[selectedFile] || "// Select a file to view its contents"}
+              {code[selectedFile] || "// Select a file to view its contents"}
             </code>
           </pre>
         </div>
